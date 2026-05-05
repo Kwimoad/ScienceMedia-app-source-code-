@@ -1,6 +1,6 @@
 // Modal.js
-import { useState } from "react";
 import { useRouter } from 'expo-router';
+import { useState } from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
 const MessageModal = ({ profileImage, senderName, lastMessage, numbrNewMessage }) => {
@@ -11,7 +11,6 @@ const MessageModal = ({ profileImage, senderName, lastMessage, numbrNewMessage }
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
             onPress={() => {
-                alert(`Clicked on ${senderName}'s message!`);
                 // Navigate to the discussion screen with sender details
                 router.push({
                     pathname: '/discussion',
@@ -31,7 +30,7 @@ const MessageModal = ({ profileImage, senderName, lastMessage, numbrNewMessage }
                 style={{ width: 50, height: 50, borderRadius: 25 }} 
             />
             
-            <View>
+            <View style={{ margin: 30, flex: 1 }}>
                 <Text style={style.name}>{senderName}</Text>
                 <Text style={style.lastMessage}>{lastMessage}</Text>
                 

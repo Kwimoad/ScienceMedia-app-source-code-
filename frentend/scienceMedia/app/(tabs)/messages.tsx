@@ -108,7 +108,6 @@ export default function MessagesScreen() {
   return (
     <View style={styles.container}>
         <ScrollView 
-            style={{ width: '100%', flex: 1 }} 
             contentContainerStyle={{ 
                 justifyContent: 'center', 
                 alignItems: 'center' 

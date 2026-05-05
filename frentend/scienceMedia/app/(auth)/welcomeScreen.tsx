@@ -1,14 +1,11 @@
+import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 export default function MessagesScreen() {
-    const resetPassword = ()=>{
+    const router = useRouter(); // On initialise le router
+    
 
-    }
-
-    const loginWithGoogle = ()=>{
-
-    }
     const [password , setPassword  ] = useState('')
 
     const [email , setEmail  ] = useState('')
@@ -18,10 +15,12 @@ export default function MessagesScreen() {
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <View style={styles.container}>
             <Image source={require('../../assets/images/icon.png')} style={styles.logo} />            
-            <Text style={styles.title}>Please enter your email to reset your password</Text>
-            <TextInput style={styles.input} placeholder="Email" value={email} onChangeText={setEmail} />
-            <Pressable onPress={resetPassword}>
-                <Text style={styles.loginButtonText}>Reset Password</Text>
+            <Text style={styles.title}>Please chose the action</Text>
+            <Pressable onPress={()=>{router.push('/(auth)/login')}}>
+                <Text style={styles.loginButtonText}>Login</Text>
+            </Pressable>
+            <Pressable onPress={()=>{router.push('/(auth)/register')}}>
+                <Text style={styles.singupButtonText}>Register</Text>
             </Pressable>
         </View>
     </View>
@@ -74,7 +73,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         color: '#fff',
    },
-   loginWithGoogleButtonText:{
+   singupButtonText:{
         backgroundColor: '#fff',
         borderColor: '#ccc',
         borderWidth: 1,
