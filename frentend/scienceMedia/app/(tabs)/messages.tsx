@@ -1,155 +1,84 @@
 import MessageModal from '@/components/ui/model';
-import { ScrollView, StyleSheet, useColorScheme, View } from 'react-native';
+import { FlatList, SafeAreaView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 export default function MessagesScreen() {
-
-    const colorScheme = useColorScheme();
     const messages = [
-        {
-            id: 1,
-            name: 'Alice',
-            lastMessage: 'Hey, how are you?',
-            numberNewMessages: 2,
-            image: 'https://randomuser.me/api/ports/1',
-        },
-        {
-            id: 2,
-            name: 'Bob',
-            lastMessage: 'See you later!',
-            numberNewMessages: 1,
-            image: 'https://randomuser.me/api/ports/2',
-        },
-        {
-            id: 1,
-            name: 'Alice',
-            lastMessage: 'Hey, how are you?',
-            numberNewMessages: 2,
-            image: 'https://randomuser.me/api/ports/1',
-        },
-        {
-            id: 2,
-            name: 'Bob',
-            lastMessage: 'See you later!',
-            numberNewMessages: 1,
-            image: 'https://randomuser.me/api/ports/2',
-        },
-        {
-            id: 1,
-            name: 'Alice',
-            lastMessage: 'Hey, how are you?',
-            numberNewMessages: 2,
-            image: 'https://randomuser.me/api/ports/1',
-        },
-        {
-            id: 2,
-            name: 'Bob',
-            lastMessage: 'See you later!',
-            numberNewMessages: 1,
-            image: 'https://randomuser.me/api/ports/2',
-        },
-        {
-            id: 1,
-            name: 'Alice',
-            lastMessage: 'Hey, how are you?',
-            numberNewMessages: 2,
-            image: 'https://randomuser.me/api/ports/1',
-        },
-        {
-            id: 2,
-            name: 'Bob',
-            lastMessage: 'See you later!',
-            numberNewMessages: 1,
-            image: 'https://randomuser.me/api/ports/2',
-        },
-        {
-            id: 1,
-            name: 'Alice',
-            lastMessage: 'Hey, how are you?',
-            numberNewMessages: 2,
-            image: 'https://randomuser.me/api/ports/1',
-        },
-        {
-            id: 2,
-            name: 'Bob',
-            lastMessage: 'See you later!',
-            numberNewMessages: 1,
-            image: 'https://randomuser.me/api/ports/2',
-        },
-        {
-            id: 1,
-            name: 'Alice',
-            lastMessage: 'Hey, how are you?',
-            numberNewMessages: 2,
-            image: 'https://randomuser.me/api/ports/1',
-        },
-        {
-            id: 2,
-            name: 'Bob',
-            lastMessage: 'See you later!',
-            numberNewMessages: 1,
-            image: 'https://randomuser.me/api/ports/2',
-        },
-        {
-            id: 1,
-            name: 'Alice',
-            lastMessage: 'Hey, how are you?',
-            numberNewMessages: 2,
-            image: 'https://randomuser.me/api/ports/1',
-        },
-        {
-            id: 2,
-            name: 'Bob',
-            lastMessage: 'See you later!',
-            numberNewMessages: 1,
-            image: 'https://randomuser.me/api/ports/2',
-        },
+        { id: '1', name: 'Alice', lastMessage: 'Hey, how are you?', numberNewMessages: 2, image: 'https://i.pravatar.cc/150?u=1' },
+        { id: '2', name: 'Bob', lastMessage: 'See you later!', numberNewMessages: 1, image: 'https://i.pravatar.cc/150?u=2' },
+        { id: '3', name: 'Charlie', lastMessage: 'Projet terminé ?', numberNewMessages: 0, image: 'https://i.pravatar.cc/150?u=3' },
     ];
 
-  return (
-    <View style={styles.container}>
-        <ScrollView 
-            contentContainerStyle={{ 
-                justifyContent: 'center', 
-                alignItems: 'center' 
-            }}
-        >
-            {messages.map((message) => (
-
-                <View style={styles.messageModalHovered} key={message.id} >
-                    <MessageModal profileImage={message.image} senderName={message.name} lastMessage={message.lastMessage} numbrNewMessage={message.numberNewMessages} />
+    return (
+        <SafeAreaView style={styles.container}>
+            {/* Barre de recherche */}
+            <View style={styles.topBar}>
+                <View style={styles.searchBox}>
+                    <Text style={styles.searchIcon}>🔍</Text>
+                    <TextInput
+                        style={styles.searchInput}
+                        placeholder="Rechercher"
+                        placeholderTextColor="#888"
+                    />
                 </View>
-            ))}
-            
-        </ScrollView>
-    </View>
-  );
+            </View>
+
+            {/* Liste des messages */}
+            <FlatList
+                data={messages}
+                keyExtractor={(item) => item.id}
+                contentContainerStyle={styles.listContent}
+                renderItem={({ item }) => (
+                    <View style={styles.messageWrapper}>
+                        <MessageModal 
+                            profileImage={item.image} 
+                            senderName={item.name} 
+                            lastMessage={item.lastMessage} 
+                            numbrNewMessage={item.numberNewMessages} 
+                        />
+                    </View>
+                )}
+            />
+        </SafeAreaView>
+    );
 }
 
 const styles = StyleSheet.create({
-    messageModalHovered:{
-        width: '98%',
-        height:70,
-        marginTop: 10,
+    container: {
+        flex: 1,
+        backgroundColor: '#fff', 
     },
-    titleTextDarkThem:{
-        fontSize: 24,
-        fontWeight: 'bold',
-        color:'white',
-        width: '100%',
-        height:100
+    topBar: {
+        flexDirection: 'row',
+        paddingHorizontal: 12,
+        paddingVertical: 10,
+        backgroundColor: '#fff',
+        borderBottomWidth: 0.5,
+        borderBottomColor: '#eee',
     },
-    titleTextNotDarkThem:{
-        fontSize: 24,
-        fontWeight: 'bold',
-        color:'black',
+    searchBox: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#f0f2f5', // Couleur plus douce type mobile
+        borderRadius: 10,
+        paddingHorizontal: 12,
+        height: 45,
     },
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  text: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
+    searchIcon: { 
+        fontSize: 16,
+        marginRight: 8 
+    },
+    searchInput: { 
+        flex: 1, 
+        fontSize: 16,
+        color: '#000' 
+    },
+    listContent: {
+        paddingVertical: 5,
+    },
+    messageWrapper: {
+        width: '100%', // Prend toute la largeur
+        borderBottomWidth: 0.5,
+        borderBottomColor: '#f0f0f0', // Ligne de séparation entre messages
+    },
 });
