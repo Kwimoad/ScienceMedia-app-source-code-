@@ -1,94 +1,29 @@
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Link } from 'expo-router';
+import { StyleSheet } from 'react-native';
 
-interface MessageModalProps {
-  profileImage: string;
-  senderName: string;
-  lastMessage: string;
-  numbrNewMessage?: number;
-}
+import { ThemedText } from '@/components/themed-text';
+import { ThemedView } from '@/components/themed-view';
 
-export default function MessageModal({ 
-  profileImage, 
-  senderName, 
-  lastMessage, 
-  numbrNewMessage 
-}: MessageModalProps) {
+export default function ModalScreen() {
   return (
-    <View style={styles.container}>
-      {/* Image de profil */}
-      <Image source={{ uri: profileImage }} style={styles.avatar} />
-
-      {/* Contenu textuel */}
-      <View style={styles.content}>
-        <View style={styles.header}>
-          <Text style={styles.name} numberOfLines={1}>
-            {senderName}
-          </Text>
-          {numbrNewMessage && numbrNewMessage > 0 ? (
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>{numbrNewMessage}</Text>
-            </View>
-          ) : null}
-        </View>
-        
-        <Text style={styles.message} numberOfLines={1}>
-          {lastMessage}
-        </Text>
-      </View>
-    </View>
+    <ThemedView style={styles.container}>
+      <ThemedText type="title">This is a modal</ThemedText>
+      <Link href="/" dismissTo style={styles.link}>
+        <ThemedText type="link">Go to home screen</ThemedText>
+      </Link>
+    </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    backgroundColor: '#fff',
-    width: '100%',
-  },
-  avatar: {
-    width: 55,
-    height: 55,
-    borderRadius: 27.5,
-    backgroundColor: '#eee',
-  },
-  content: {
     flex: 1,
-    marginLeft: 15,
-    borderBottomWidth: 0.5,
-    borderBottomColor: '#f0f0f0',
-    paddingBottom: 10,
-    justifyContent: 'center',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 4,
-  },
-  name: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#000', // Forcer le noir pour éviter le problème du mode sombre
-  },
-  message: {
-    fontSize: 14,
-    color: '#666', // Gris foncé pour le message
-  },
-  badge: {
-    backgroundColor: '#007AFF',
-    borderRadius: 10,
-    minWidth: 20,
-    height: 20,
     justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 6,
+    padding: 20,
   },
-  badgeText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: 'bold',
+  link: {
+    marginTop: 15,
+    paddingVertical: 15,
   },
 });

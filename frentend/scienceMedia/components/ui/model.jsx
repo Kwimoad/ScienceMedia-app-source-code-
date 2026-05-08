@@ -30,7 +30,7 @@ const MessageModal = ({ profileImage, senderName, lastMessage, numbrNewMessage }
                 style={{ width: 50, height: 50, borderRadius: 25 }} 
             />
             
-            <View style={{ margin: 30, flex: 1 }}>
+            <View>
                 <Text style={style.name}>{senderName}</Text>
                 <Text style={style.lastMessage}>{lastMessage}</Text>
                 
