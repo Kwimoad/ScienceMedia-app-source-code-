@@ -1,5 +1,5 @@
 // hooks/use-feed.ts
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { usePostsStore } from '../store/posts.store';
 import { postsService } from '../services/posts.service';
 import type { Post } from '../types/post.types';
@@ -87,6 +87,8 @@ export function useFeed() {
     setLoading, setError, setPagination,
   } = usePostsStore();
 
+  const isFirstLoadRef = useRef(true);
+
   const loadFeed = useCallback(async (refresh = false) => {
     if (isLoading) return;
     setLoading(true);
@@ -97,8 +99,9 @@ export function useFeed() {
       if (refresh) setFeed(res.data);
       else appendFeed(res.data);
       setPagination(res.nextCursor, res.hasMore);
+      isFirstLoadRef.current = false;
     } catch (e: any) {
-      if (refresh || feed.length === 0) {
+      if (refresh || isFirstLoadRef.current) {
         setFeed(exampleFeed);
         setPagination(undefined, false);
       }
@@ -106,7 +109,7 @@ export function useFeed() {
     } finally {
       setLoading(false);
     }
-  }, [appendFeed, feed.length, isLoading, nextCursor, setError, setFeed, setLoading, setPagination]);
+  }, [isLoading, nextCursor, setError, setFeed, appendFeed, setPagination, setLoading]);
 
   const handleLike = useCallback(async (postId: string) => {
     const post = feed.find((p) => p.id === postId);
@@ -120,7 +123,9 @@ export function useFeed() {
     }
   }, [feed, toggleLike]);
 
-  useEffect(() => { loadFeed(true); }, [loadFeed]);
+  useEffect(() => { 
+    loadFeed(true); 
+  }, []);
 
   return {
     feed,

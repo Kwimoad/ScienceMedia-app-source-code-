@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import {
   View,
   Text,
@@ -16,14 +16,31 @@ import { PostCard } from '../../components/feed/PostCard';
 import { useFeed } from '../../hooks/use-posts';
 import type { Post } from '../../types/post.types';
 
+// ─── Debounce helper ──────────────────────────────────────────────────────
+
+function useDebounce(value: string, delayMs: number) {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+  
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delayMs);
+    
+    return () => clearTimeout(handler);
+  }, [value, delayMs]);
+  
+  return debouncedValue;
+}
+
 // ─── Composant principal App ──────────────────────────────────────────────────
 
 export default function App(): React.JSX.Element {
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
   const { feed, isLoading, error, refresh, handleLike } = useFeed();
 
   const filteredFeed = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase();
+    const query = debouncedSearchQuery.trim().toLowerCase();
     if (!query) return feed;
 
     return feed.filter((post) => {
@@ -38,9 +55,88 @@ export default function App(): React.JSX.Element {
         .toLowerCase()
         .includes(query);
     });
-  }, [feed, searchQuery]);
+  }, [feed, debouncedSearchQuery]);
 
   const showInitialLoader = isLoading && feed.length === 0;
+
+  const renderPostCard = useCallback(
+    ({ item }: { item: Post }) => (
+      <PostCard post={item} onLike={handleLike} />
+    ),
+    [handleLike]
+  );
+
+  const renderListHeader = useCallback(
+    () => (
+      <View>
+        <View style={styles.topBar}>
+          <Image
+            source={{ uri: 'https://randomuser.me/api/portraits/men/75.jpg' }}
+            style={styles.topAvatar}
+          />
+          <View style={styles.searchBox}>
+            <Text style={styles.searchIcon}>🔍</Text>
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Rechercher"
+              placeholderTextColor="#6B7280"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
+          </View>
+        </View>
+
+        <View style={styles.createCard}>
+          <View style={styles.createTop}>
+            <Image
+              source={{ uri: 'https://randomuser.me/api/portraits/men/75.jpg' }}
+              style={styles.createAvatar}
+            />
+            <TouchableOpacity style={styles.createInput} activeOpacity={0.85}>
+              <Text style={styles.createPlaceholder}>Démarrer un post</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.createActions}>
+            {[
+              { icon: '🖼️', label: 'Photo' },
+              { icon: '🎥', label: 'Vidéo' },
+              { icon: '📄', label: 'Document' },
+              { icon: '📅', label: 'Réunion' },
+            ].map((btn) => (
+              <TouchableOpacity key={btn.label} style={styles.createBtn}>
+                <Text style={styles.createBtnIcon}>{btn.icon}</Text>
+                <Text style={styles.createBtnLabel}>{btn.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        {error ? <Text style={styles.helperText}>{error}</Text> : null}
+      </View>
+    ),
+    [searchQuery, error]
+  );
+
+  const renderListEmpty = useCallback(
+    () =>
+      showInitialLoader ? (
+        <View style={styles.stateCard}>
+          <ActivityIndicator color="#0a7ea4" />
+          <Text style={styles.stateTitle}>Chargement du fil...</Text>
+        </View>
+      ) : (
+        <View style={styles.stateCard}>
+          <Text style={styles.stateTitle}>Aucun post trouvé</Text>
+          <Text style={styles.stateSubtitle}>
+            Essayez une autre recherche ou rafraîchissez le fil.
+          </Text>
+        </View>
+      ),
+    [showInitialLoader]
+  );
+
+  const keyExtractor = useCallback((item: Post) => item.id, []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -48,72 +144,19 @@ export default function App(): React.JSX.Element {
 
       <FlatList
         data={filteredFeed}
-        keyExtractor={(item: Post) => item.id}
-        renderItem={({ item }) => <PostCard post={item} onLike={handleLike} />}
+        keyExtractor={keyExtractor}
+        renderItem={renderPostCard}
         contentContainerStyle={styles.feedContent}
-        ListHeaderComponent={
-          <View>
-            <View style={styles.topBar}>
-              <Image
-                source={{ uri: 'https://randomuser.me/api/portraits/men/75.jpg' }}
-                style={styles.topAvatar}
-              />
-              <View style={styles.searchBox}>
-                <Text style={styles.searchIcon}>🔍</Text>
-                <TextInput
-                  style={styles.searchInput}
-                  placeholder="Rechercher"
-                  placeholderTextColor="#6B7280"
-                  value={searchQuery}
-                  onChangeText={setSearchQuery}
-                />
-              </View>
-            </View>
-
-            <View style={styles.createCard}>
-              <View style={styles.createTop}>
-                <Image
-                  source={{ uri: 'https://randomuser.me/api/portraits/men/75.jpg' }}
-                  style={styles.createAvatar}
-                />
-                <TouchableOpacity style={styles.createInput} activeOpacity={0.85}>
-                  <Text style={styles.createPlaceholder}>Démarrer un post</Text>
-                </TouchableOpacity>
-              </View>
-
-              <View style={styles.createActions}>
-                {[
-                  { icon: '🖼️', label: 'Photo' },
-                  { icon: '🎥', label: 'Vidéo' },
-                  { icon: '📄', label: 'Document' },
-                  { icon: '📅', label: 'Réunion' },
-                ].map((btn) => (
-                  <TouchableOpacity key={btn.label} style={styles.createBtn}>
-                    <Text style={styles.createBtnIcon}>{btn.icon}</Text>
-                    <Text style={styles.createBtnLabel}>{btn.label}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-
-            {error ? <Text style={styles.helperText}>{error}</Text> : null}
-          </View>
-        }
-        ListEmptyComponent={
-          showInitialLoader ? (
-            <View style={styles.stateCard}>
-              <ActivityIndicator color="#0a7ea4" />
-              <Text style={styles.stateTitle}>Chargement du fil...</Text>
-            </View>
-          ) : (
-            <View style={styles.stateCard}>
-              <Text style={styles.stateTitle}>Aucun post trouvé</Text>
-              <Text style={styles.stateSubtitle}>Essayez une autre recherche ou rafraîchissez le fil.</Text>
-            </View>
-          )
-        }
+        ListHeaderComponent={renderListHeader}
+        ListEmptyComponent={renderListEmpty}
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={refresh} />}
         showsVerticalScrollIndicator={false}
+        maxToRenderPerBatch={8}
+        updateCellsBatchingPeriod={50}
+        initialNumToRender={8}
+        removeClippedSubviews={true}
+        scrollEventThrottle={16}
+        windowSize={21}
       />
     </SafeAreaView>
   );

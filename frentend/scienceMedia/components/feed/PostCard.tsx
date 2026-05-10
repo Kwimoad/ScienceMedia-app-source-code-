@@ -1,3 +1,4 @@
+import { memo, useCallback } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { router } from 'expo-router';
 import { Avatar } from '../ui/Avatar';
@@ -9,14 +10,22 @@ interface PostCardProps {
   onLike: (id: string) => void;
 }
 
-export function PostCard({ post, onLike }: PostCardProps) {
+function PostCardComponent({ post, onLike }: PostCardProps) {
   const relativeTime = formatRelativeTime(post.publishedAt);
+  
+  const handleLike = useCallback(() => {
+    onLike(post.id);
+  }, [post.id, onLike]);
+  
+  const handlePostPress = useCallback(() => {
+    router.push(`/post/${post.id}`);
+  }, [post.id]);
 
   return (
     <TouchableOpacity
       style={styles.card}
       activeOpacity={0.92}
-      onPress={() => router.push(`/post/${post.id}`)}
+      onPress={handlePostPress}
     >
       {/* En-tête auteur */}
       <View style={styles.header}>
@@ -35,7 +44,11 @@ export function PostCard({ post, onLike }: PostCardProps) {
       <Text style={styles.excerpt} numberOfLines={3}>{post.excerpt}</Text>
 
       {post.imageUrl ? (
-        <Image source={{ uri: post.imageUrl }} style={styles.previewImage} />
+        <Image 
+          source={{ uri: post.imageUrl + '?w=500&h=220&fit=crop' }} 
+          style={styles.previewImage}
+          progressiveRenderingEnabled={true}
+        />
       ) : null}
 
       {post.meeting ? (
@@ -64,7 +77,7 @@ export function PostCard({ post, onLike }: PostCardProps) {
 
       {/* Actions */}
       <View style={styles.actions}>
-        <TouchableOpacity style={styles.action} onPress={() => onLike(post.id)}>
+        <TouchableOpacity style={styles.action} onPress={handleLike}>
           <Text style={[styles.actionIcon, post.isLiked && styles.liked]}>
             {post.isLiked ? '♥' : '♡'}
           </Text>
@@ -73,7 +86,7 @@ export function PostCard({ post, onLike }: PostCardProps) {
 
         <TouchableOpacity
           style={styles.action}
-          onPress={() => router.push(`/post/${post.id}`)}
+          onPress={handlePostPress}
         >
           <Text style={styles.actionIcon}>💬</Text>
           <Text style={styles.actionCount}>{post.commentsCount}</Text>
@@ -86,6 +99,15 @@ export function PostCard({ post, onLike }: PostCardProps) {
     </TouchableOpacity>
   );
 }
+
+export const PostCard = memo(PostCardComponent, (prevProps, nextProps) => {
+  return (
+    prevProps.post.id === nextProps.post.id &&
+    prevProps.post.isLiked === nextProps.post.isLiked &&
+    prevProps.post.likesCount === nextProps.post.likesCount &&
+    prevProps.onLike === nextProps.onLike
+  );
+});
 
 function TypeBadge({ type }: { type: PostType }) {
   return (
