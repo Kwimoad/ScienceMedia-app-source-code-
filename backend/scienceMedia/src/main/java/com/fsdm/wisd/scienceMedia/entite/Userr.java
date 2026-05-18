@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
+
 public class Userr {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -24,4 +25,6 @@ public class Userr {
     private String profileImage;
 
     private Role role;
+
+
 }

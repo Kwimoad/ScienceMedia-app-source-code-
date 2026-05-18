@@ -52,7 +52,7 @@ public class config {
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http.authorizeHttpRequests(au -> au
                 .requestMatchers("/auth/login").permitAll()
-//                .requestMatchers("/h2-console/**").permitAll()
+                .requestMatchers("/profile/register").permitAll()
 //                .requestMatchers("/addClient").permitAll()
 //                .requestMatchers("/getCommentaire").permitAll()
 //                .requestMatchers("/prompt/**").permitAll()

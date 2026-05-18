@@ -1,8 +1,12 @@
 package com.fsdm.wisd.scienceMedia.service;
 
 import com.fsdm.wisd.scienceMedia.dto.AuthResponse;
+import com.fsdm.wisd.scienceMedia.dto.RegisterRequest;
 import com.fsdm.wisd.scienceMedia.entite.Userr;
+import com.fsdm.wisd.scienceMedia.enums.Role;
+import com.fsdm.wisd.scienceMedia.mapper.RegisterDtoMapper;
 import com.fsdm.wisd.scienceMedia.repositories.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +14,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.*;
 import org.springframework.stereotype.Service;
@@ -17,6 +22,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,15 +32,17 @@ public class AuthenticationService {
     private JwtDecoder jwtDecoder;
     private final AuthenticationManager authenticationManager;
     private UserRepository userRepository;
+    private PasswordEncoder passwordEncoder;
 
     @Value("${jwt.timeExpairation}")
     private int timeExpairation;
 
-    public AuthenticationService(JwtEncoder jwtEncoder, JwtDecoder jwtDecoder, AuthenticationManager authenticationManager,UserRepository userRepository) {
+    public AuthenticationService(JwtEncoder jwtEncoder, JwtDecoder jwtDecoder, AuthenticationManager authenticationManager, UserRepository userRepository , PasswordEncoder passwordEncoder) {
         this.jwtEncoder = jwtEncoder;
         this.jwtDecoder = jwtDecoder;
         this.authenticationManager = authenticationManager;
         this.userRepository=userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public ResponseEntity<AuthResponse> login(String username, String password) {
@@ -70,5 +78,28 @@ public class AuthenticationService {
         response.setUser(user);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @Transactional
+    public HttpStatus resetPassword(Authentication authentication, String newPassword) {
+        Userr user = userRepository.findByEmail(authentication.getName()).orElseThrow(()->new RuntimeException("user not found"));
+        user.setPassword(passwordEncoder.encode(newPassword));
+        System.out.println(user);
+        return HttpStatus.OK;
+    }
+
+    @Transactional
+    public boolean register(RegisterRequest profile) {
+        try{
+            Userr user = RegisterDtoMapper.fromRegisterRequestToUser(profile);
+            user.setRole(Role.USER);
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            userRepository.save(user);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+
+
     }
 }
