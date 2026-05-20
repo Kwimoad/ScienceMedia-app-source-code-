@@ -22,7 +22,8 @@ public class Userr {
     private String password;
     private String bio;
     private String title;
-    private String profileImage;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = true)
+    private Image profileImage;
 
     private Role role;
 

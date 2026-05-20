@@ -3,20 +3,27 @@ package com.fsdm.wisd.scienceMedia.controller.auth;
 
 import com.fsdm.wisd.scienceMedia.dto.AuthResponse;
 import com.fsdm.wisd.scienceMedia.dto.RegisterRequest;
+import com.fsdm.wisd.scienceMedia.entite.Image;
 import com.fsdm.wisd.scienceMedia.service.AuthenticationService;
+import com.fsdm.wisd.scienceMedia.service.ProfileService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController()
 @RequestMapping("/profile")
 public class Profile {
     private AuthenticationService authenticationService;
+    private ProfileService profileService;
 
 
-    public Profile(AuthenticationService authenticationService) {
+    public Profile(AuthenticationService authenticationService,ProfileService profileService) {
         this.authenticationService = authenticationService;
+        this.profileService = profileService;
     }
 
     @PutMapping("/change-password")
@@ -31,6 +38,11 @@ public class Profile {
             return authenticationService.login(profile.getEmail() , profile.getPassword());
         }
         return null;
+    }
+
+    @PutMapping("/profile_image/change")
+    public HttpStatus uploadImage(@RequestParam("file") MultipartFile file, Authentication authentication) {
+        return profileService.changeProfileImage(file,authentication);
     }
 
 

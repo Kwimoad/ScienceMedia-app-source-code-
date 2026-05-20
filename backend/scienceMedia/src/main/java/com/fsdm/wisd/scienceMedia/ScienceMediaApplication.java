@@ -30,7 +30,7 @@ public class ScienceMediaApplication {
 			user.setPassword(passwordEncoder.encode("abdo123"));
 			user.setBio("hamdolilah");
 			user.setTitle("data scientist");
-			user.setProfileImage("images");
+			user.setProfileImage(null);
 			repository.save(user);
 
 			System.out.println("--- Données insérées avec succès ! ---");
